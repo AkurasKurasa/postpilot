@@ -1,5 +1,8 @@
+// Empty in dev (Vite proxies /api) and when Express serves the build; set to the Render URL for GitHub Pages.
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+
 async function request(method, url, body) {
-  const res = await fetch(url, {
+  const res = await fetch(API_BASE + url, {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,

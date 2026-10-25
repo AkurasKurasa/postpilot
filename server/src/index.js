@@ -3,12 +3,13 @@ import cors from "cors";
 import fs from "node:fs";
 import path from "node:path";
 import { config, SERVER_ROOT } from "./config.js";
+import { corsOptions } from "./cors.js";
 import { db } from "./db/index.js";
 import { runs } from "./routes/runs.js";
 import { posts } from "./routes/posts.js";
 
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions(config.corsOrigins)));
 app.use(express.json({ limit: "100kb" }));
 
 app.get("/api/health", (_req, res) =>

@@ -1,0 +1,19 @@
+# Render Blueprint for the PostPilot API. Docs: https://render.com/docs/blueprint-spec
+# Values marked sync: false are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: postpilot-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://akuraskurasa.github.io
+      # Mock agents until rate limiting exists: the API is public and real Claude calls cost money.
+      - key: LLM_MODE
+        value: mock
