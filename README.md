@@ -32,6 +32,28 @@ Production: `npm run build` then `npm start`. Express serves the built React app
 
 Tests: `npm test` runs the governance unit tests and the scenario tests (TC1–TC5, TC7) with mock agents.
 
+## Deploy
+
+The React app is hosted on **GitHub Pages** (https://akuraskurasa.github.io/postpilot/) and the API on **Render**.
+GitHub Pages only serves static files, so the API, database and API key can't live there.
+
+1. **Database:** create a free [MongoDB Atlas](https://www.mongodb.com/docs/atlas/getting-started/) cluster and a database user.
+   Under Network Access, allow `0.0.0.0/0`: Render's free tier has no fixed outbound IP.
+2. **API on Render:** New → Blueprint → pick this repo. [`render.yaml`](render.yaml) sets up `postpilot-api`
+   ([blueprint spec](https://render.com/docs/blueprint-spec)). When prompted, paste your Atlas connection string as `MONGODB_URI`.
+   Check `https://<your-service>.onrender.com/api/health` returns `"ok": true`.
+3. **Point the client at the API:** in GitHub, Settings → Secrets and variables → Actions → Variables, add
+   `VITE_API_URL` = your Render URL (e.g. `https://postpilot-api.onrender.com`).
+4. **Deploy:** every push to `main` runs [`.github/workflows/pages.yml`](.github/workflows/pages.yml)
+   ([docs](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)):
+   server tests → client build → Pages. Pages source must be set to **GitHub Actions** (Settings → Pages).
+
+Notes:
+- The API only answers browser requests from origins in `CORS_ORIGINS`. That's a browser guard, not auth.
+- The hosted API runs **mock agents** (`LLM_MODE=mock`). Anyone with the URL can start runs, so add rate limiting
+  before setting `ANTHROPIC_API_KEY` there and removing `LLM_MODE`.
+- Render's free tier sleeps when idle; the first request after a break takes ~30–60 s.
+
 ## How it's built
 
 | Part | File | What it does |
