@@ -1,6 +1,7 @@
 import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseOrigins } from "./cors.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const SERVER_ROOT = path.resolve(here, "..");
@@ -15,6 +16,7 @@ export const config = {
   model: process.env.ANTHROPIC_MODEL || "claude-haiku-5-5",
   llmMode: process.env.LLM_MODE === "mock" || !apiKey ? "mock" : "anthropic",
   mockDelay: Number(process.env.MOCK_STEP_DELAY_MS ?? 600),
+  corsOrigins: parseOrigins(process.env.CORS_ORIGINS || "http://localhost:5173"),
   maxRevisions: 2,
   maxPosts: 7,
 };
