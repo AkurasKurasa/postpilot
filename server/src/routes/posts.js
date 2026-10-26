@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { db } from "../db/index.js";
 import { log } from "../utils/logger.js";
+import { asyncRoute } from "../utils/asyncRoute.js";
 import { runGovernanceChecks } from "../governance/rules.js";
 
 export const posts = Router();
 
 // Human decision — approve (with optional edit), reject, or reset to pending.
-posts.patch("/:id/decision", async (req, res) => {
+posts.patch("/:id/decision", asyncRoute(async (req, res) => {
   const post = await db.getPost(req.params.id);
   const { decision, caption, acknowledgeIssues } = req.body || {};
   if (!post || !["APPROVED", "REJECTED", "PENDING"].includes(decision)) {
@@ -44,12 +45,12 @@ posts.patch("/:id/decision", async (req, res) => {
   if (run.status !== status) await db.updateRun(run.id, { status });
 
   res.json(updated);
-});
+}));
 
 // Live rule check for the approval screen while the owner edits a caption.
-posts.post("/check", async (req, res) => {
+posts.post("/check", asyncRoute(async (req, res) => {
   const { runId, caption } = req.body || {};
   const run = await db.getRun(runId);
   if (!run) return res.status(404).json({ error: "Plan not found." });
   res.json({ issues: runGovernanceChecks({ caption: String(caption || "") }, run.brief) });
-});
+}));
