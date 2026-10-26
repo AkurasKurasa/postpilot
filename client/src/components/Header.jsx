@@ -31,8 +31,8 @@ export default function Header({ steps, view, setView, plans, currentId, openPla
           <PlansMenu plans={plans} currentId={currentId} openPlan={openPlan} />
           {onActivity && <button className="tool-btn" onClick={onActivity}>Activity</button>}
           {health && (
-            <span className={`mode ${health.ok ? health.llm : "down"}`} title={health.ok ? (health.db === "memory" ? "In-memory database" : "MongoDB") : "The API is not reachable"}>
-              {health.ok ? (health.llm === "mock" ? "Mock agents" : "Claude") : "API offline"}
+            <span className={`mode ${health.ok ? health.llm : health.waking ? "waking" : "down"}`} title={health.ok ? (health.db === "memory" ? "In-memory database" : "MongoDB") : health.waking ? "The API was asleep and is starting up (can take a minute)" : "The API is not reachable. Still retrying."}>
+              {health.ok ? (health.llm === "mock" ? "Mock agents" : "Claude") : health.waking ? "Waking up API…" : "API offline"}
             </span>
           )}
         </div>
