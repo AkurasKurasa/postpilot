@@ -7,6 +7,8 @@ import AgentsView from "./views/AgentsView.jsx";
 import ReviewView from "./views/ReviewView.jsx";
 import CalendarView from "./views/CalendarView.jsx";
 
+const WAKE_WINDOW_MS = 120000;
+
 // One-page app: the header's step bar switches between four views of the current plan.
 export default function App() {
   const [health, setHealth] = useState(null);
@@ -19,9 +21,27 @@ export default function App() {
   const lastStatus = useRef(null);
 
   const refreshPlans = useCallback(() => api.listPlans().then(setPlans).catch(() => {}), []);
+  // The hosted API (Render free tier) sleeps when idle and takes up to a minute to wake,
+  // so keep checking instead of declaring it offline after one failed request.
   useEffect(() => {
-    api.health().then(setHealth).catch(() => setHealth({ ok: false }));
-    refreshPlans();
+    let cancelled = false;
+    let timer;
+    const started = Date.now();
+    async function check() {
+      try {
+        const h = await api.health();
+        if (cancelled) return;
+        setHealth(h);
+        refreshPlans();
+      } catch {
+        if (cancelled) return;
+        const waking = Date.now() - started < WAKE_WINDOW_MS;
+        setHealth({ ok: false, waking });
+        timer = setTimeout(check, waking ? 3000 : 15000);
+      }
+    }
+    check();
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [refreshPlans]);
 
   const reload = useCallback(async () => {

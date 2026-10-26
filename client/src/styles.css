@@ -72,6 +72,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mode::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
 .mode.mock::before { background: var(--warn); }
 .mode.down::before { background: var(--bad); }
+.mode.waking::before { background: var(--warn); animation: blink 1.2s ease-in-out infinite; }
 
 .menu { position: relative; }
 .menu-pop { position: absolute; right: 0; top: calc(100% + 8px); width: 300px; max-height: 60vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px rgba(16, 24, 40, 0.14); padding: 6px; }
