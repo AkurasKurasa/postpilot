@@ -11,7 +11,8 @@ const RunSchema = new Schema(
   {
     brief: {
       name: String,
-      type: String,
+      // Spelled out: a bare nested `type: String` makes Mongoose treat the whole brief as a String
+      type: { type: String },
       voice: String,
       goal: String,
       promo: String,
